@@ -1,0 +1,3 @@
+# commandseparatorrc
+
+simple command separator
