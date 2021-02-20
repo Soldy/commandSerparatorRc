@@ -1,61 +1,226 @@
 /*
- *  @Soldy\poolrc\2021.01.16\GPL3
+ *  @Soldy\commandseparatorrc\2021.02.20\GPL3
  */
-'use strict`;
+'use strict';
 
 /*
- * @param {integer} command
- * @function
- * @return {array}
+ * @prototype
  */
-const  separatorBase =function (command) {
-    command = command.toString().replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g, '').replace(/\s+/g, ' ');
-    let commands = [],
-        commandi = 0,
-        commandit = 0,
-        mod = 0,
-        modSelector = '';
-    for (let i = 0; command.length > i; i++) {
-        if (typeof commands[commandi] === 'undefined')
-            commands[commandi] = [];
-        if (typeof commands[commandi][commandit] === 'undefined')
-            commands[commandi][commandit] = '';
-        if (mod === 0) {
-            if (command.charAt(i) === ';') {
-                commandi++;
-                commandit = 0;
-            } else if (command.charAt(i) === '\\') {
-                mod = 2;
-            } else if (command.charAt(i) === '\'') {
-                mod = 1;
-                modSelector = '\'';
-            } else if (command.charAt(i) === '"') {
-                mod = 1;
-                modSelector = '"';
-            } else if (
-                (command.charAt(i) === ' ') || (command.charAt(i) === '\t')) {
-                if (
-                    (i > 0) && (command.charAt(i - 1) !== ' ') && 
-                        (command.charAt(i - 1) !== '\t') && 
-                        (command.charAt(i - 1) !== ';') && 
-                        (command.charAt(i - 1) !== '\'') && 
-                        (command.charAt(i - 1) !== '"'))
-                    commandit++;
-            } else {
-                commands[commandi][commandit] += command.charAt(i);
-            }
-        } else if (mod === 1) {
-            if (command.charAt(i) === modSelector) {
-                mod = 0;
-            } else {
-                commands[commandi][commandit] += command.charAt(i);
-            }
-        } else if (mod === 2) {
-            commands[commandi][commandit] += command.charAt(i);
-            mod = 0;
-        }
+const  separatorBase =function () {
+    /*
+     * @param {string} command
+     * @public
+     * @return {array}
+     */
+    this.check = function(command){
+        return proceed(command);
     }
-    return commands;
+    /*
+     * @private
+     * @var {array}
+     */
+    let stence = [];
+    /*
+     * @private
+     * @var {string}
+     */
+    let word = '';
+    /*
+     * @private
+     * @var {string}
+     */
+    let line = '';
+    /*
+     * @private
+     * @var {array}
+     */
+    let commands = [];
+    /* expectation modifier
+     * 0 nothing 
+     * 1 in thhe bracket
+     * 2 expection
+     * (3 expecion in bracket)
+     * var {integer} bitwise
+     */
+    let mod = 0;
+    /*
+     * @private
+     * @var {string}
+     */
+    let bracetChar = '';
+    /*
+     * @private
+     * @const {array}
+     */
+    const bracets = ['"',"'","`"];
+    /*
+     * @private
+     * @const {array}
+     */
+    const separators = [';'];
+    /*
+     * @private
+     */
+    const reset = function(){
+        stence = [];
+        word = '';
+        line = '';
+        commands = [];
+        mod = 0;
+        bracetChar = '';
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {string}
+     */
+    const cleanup = (command)=>{
+        return command
+            .toString()
+            .replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g, '')
+            .replace(/\s+/g, ' ');
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {array}
+     */
+    const proceed = function(command){
+        reset();
+        line = cleanup(command);
+        let chars = line.split('');
+        for (let n of chars){
+            n.toString(); // double to string ;;
+            if ( mod === 0 )
+                simple(n);
+            else if(mod === 1)
+                bracet(n);
+            else
+                expect(n);
+        }
+        separate();
+        return commands;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const simple = function(c){
+        if (
+            (toBracet(c))||
+            (toSeparate(c))||
+            (toExpect(c))
+        )
+            return false;
+        if((c === ' ') || (c === '\t')) 
+            return nextWord();
+        add(c);
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {array}
+     */
+    const toBracet = function(c){
+        if (0>bracets.indexOf(c))
+            return false;
+        bracetChar = c;
+        mod|=1; // make the bitwise great again :)
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const endBracet = function(c){
+        if (bracetChar !== c)
+            return false;
+        mod=(mod^1); // make the bitwise great again :)
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const bracet = function(c){
+        if (
+            (toExpect(c)) ||
+            (endBracet(c))
+        )
+            return false;
+        add(c);
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const expectation = function(c){
+        mod = (mod^2); // bitwise :) because I love it !!
+        add(c);
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const toExpect = function(c){
+        if (c !== '\\')
+            return false; 
+         mod|=2; 
+         return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const nextWord = function(){
+        if (1>word.length)
+            return false;
+        stence.push(word);
+        word = '';
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const toSeparate = function(c){
+        if (0 >separators.indexOf(c))
+            return false;
+        separate();
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     * @return {boolean}
+     */
+    const separate = function(){
+        if (word.length > 0)
+            nextWord();
+        if (1>stence.length)
+            return false;
+        commands.push(stence);
+        stence = [];
+        return true;
+    }
+    /*
+     * @param {string}
+     * @private
+     */
+    const add = function(c){
+        word += c.toString(); // double toString
+    }
+
 };
 
 exports.base = separatorBase;
