@@ -58,4 +58,4 @@ const  separatorBase =function (command) {
     return commands;
 };
 
-exports.separatorBase = separatorBase;
+exports.base = separatorBase;
