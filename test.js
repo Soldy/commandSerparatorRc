@@ -3,7 +3,7 @@ const nanoTest  = new (require('nanoTest')).test({
     'debugPrint' : 'short'
 });
 const separatorrc = new (require('./index.js')).base();
-const testC ='test command "rebel param tam" ; multi command ;;;';
+const testC ='test command "rebel param tam" ; multi \\ command\\ b ;;;';
 const expectation =[
     [
        'test',
@@ -11,7 +11,7 @@ const expectation =[
        'rebel param tam'
     ],[
        'multi',
-       'command'
+       ' command b'
     ]
 ];
 
