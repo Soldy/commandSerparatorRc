@@ -189,9 +189,9 @@ const  separatorBase =function () {
      */
     const simple = function(c){
         if (
-            (toBracet(c))||
             (toSeparate(c))||
-            (toExpect(c))
+            (toExpect(c))||
+            (toBracet(c))
         )
             return false;
         if((c === ' ') || (c === '\t')) 
