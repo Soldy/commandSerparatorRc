@@ -13,28 +13,28 @@ const  separatorBase =function () {
      * @return {array}
      */
     this.check = function(command){
-        return proceed(command);
+        return _proceed(command);
     };
     /*
      * @private
      * @var {array}
      */
-    let stence = [];
+    let _stence = [];
     /*
      * @private
      * @var {string}
      */
-    let word = '';
+    let _word = '';
     /*
      * @private
      * @var {string}
      */
-    let line = '';
+    let _line = '';
     /*
      * @private
      * @var {array}
      */
-    let commands = [];
+    let _commands = [];
     /* expectation modifier
      * 0 nothing 
      * 1 in thhe bracket
@@ -42,39 +42,39 @@ const  separatorBase =function () {
      * (3 expecion in bracket)
      * var {integer} bitwise
      */
-    let mod = 0;
+    let _mod = 0;
     /*
      * @private
      * @var {string}
      */
-    let bracetChar = '';
+    let _bracetChar = '';
     /*
      * @private
      * @const {array}
      */
-    const bracets = ['"','\'','`'];
+    const _bracets = ['"','\'','`'];
     /*
      * @private
      * @const {array}
      */
-    const separators = [';'];
+    const _separators = [';'];
     /*
      * @private
      */
-    const reset = function(){
-        stence = [];
-        word = '';
-        line = '';
-        commands = [];
-        mod = 0;
-        bracetChar = '';
+    const _reset = function(){
+        _stence = [];
+        _word = '';
+        _line = '';
+        _commands = [];
+        _mod = 0;
+        _bracetChar = '';
     };
     /*
      * @param {string}
      * @private
      * @return {string}
      */
-    const cleanup = (command)=>{
+    const _cleanup = (command)=>{
         return command
             .toString()
             .replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g, '')
@@ -85,11 +85,11 @@ const  separatorBase =function () {
      * @private
      * @return {array}
      */
-    const toBracet = function(c){
-        if (0>bracets.indexOf(c))
+    const _toBracet = function(c){
+        if (0 > _bracets.indexOf(c))
             return false;
-        bracetChar = c;
-        mod|=1; // make the bitwise great again :)
+        _bracetChar = c;
+        _mod |= 1; // make the bitwise great again :)
         return true;
     };
     /*
@@ -97,10 +97,10 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const endBracet = function(c){
-        if (bracetChar !== c)
+    const _endBracet = function(c){
+        if (_bracetChar !== c)
             return false;
-        mod=(mod^1); // make the bitwise great again :)
+        _mod = (_mod^1); // make the bitwise great again :)
         return true;
     };
     /*
@@ -108,13 +108,13 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const bracet = function(c){
+    const _bracet = function(c){
         if (
-            (toExpect(c)) ||
-            (endBracet(c))
+            (_toExpect(c)) ||
+            (_endBracet(c))
         )
             return false;
-        add(c);
+        _add(c);
         return true;
     };
     /*
@@ -122,9 +122,9 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const expect = function(c){
-        mod = (mod^2); // bitwise :) because I love it !!
-        add(c);
+    const _expect = function(c){
+        _mod = (_mod^2); // bitwise :) because I love it !!
+        _add(c);
         return true;
     };
     /*
@@ -132,10 +132,10 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const toExpect = function(c){
+    const _toExpect = function(c){
         if (c !== '\\')
             return false; 
-        mod|=2; 
+        _mod|=2; 
         return true;
     };
     /*
@@ -143,11 +143,11 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const nextWord = function(){
-        if (1>word.length)
+    const _nextWord = function(){
+        if (1>_word.length)
             return false;
-        stence.push(word);
-        word = '';
+        _stence.push(_word);
+        _word = '';
         return true;
     };
     /*
@@ -155,10 +155,10 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const toSeparate = function(c){
-        if (0 >separators.indexOf(c))
+    const _toSeparate = function(c){
+        if (0 > _separators.indexOf(c))
             return false;
-        separate();
+        _separate();
         return true;
     };
     /*
@@ -166,37 +166,37 @@ const  separatorBase =function () {
      * @private
      * @return {boolean}
      */
-    const separate = function(){
-        if (word.length > 0)
-            nextWord();
-        if (1>stence.length)
+    const _separate = function(){
+        if ( _word.length > 0)
+            _nextWord();
+        if (1 > _stence.length)
             return false;
-        commands.push(stence);
-        stence = [];
+        _commands.push(_stence);
+        _stence = [];
         return true;
     };
     /*
      * @param {string}
      * @private
      */
-    const add = function(c){
-        word += c.toString(); // double toString
+    const _add = function(c){
+        _word += c.toString(); // double toString
     };
     /*
      * @param {string}
      * @private
      * @return {boolean}
      */
-    const simple = function(c){
+    const _simple = function(c){
         if (
-            (toSeparate(c))||
-            (toExpect(c))||
-            (toBracet(c))
+            (_toSeparate(c))||
+            (_toExpect(c))||
+            (_toBracet(c))
         )
             return false;
         if((c === ' ') || (c === '\t')) 
-            return nextWord();
-        add(c);
+            return _nextWord();
+        _add(c);
         return true;
     };
     /*
@@ -204,21 +204,21 @@ const  separatorBase =function () {
      * @private
      * @return {array}
      */
-    const proceed = function(command){
-        reset();
-        line = cleanup(command);
-        let chars = line.split('');
+    const _proceed = function(command){
+        _reset();
+        _line = _cleanup(command);
+        let chars = _line.split('');
         for (let n of chars){
             n.toString(); // double to string ;;
-            if ( mod === 0 )
-                simple(n);
-            else if(mod === 1)
-                bracet(n);
+            if ( _mod === 0 )
+                _simple(n);
+            else if( _mod === 1 )
+                _bracet(n);
             else
-                expect(n);
+                _expect(n);
         }
-        separate();
-        return commands;
+        _separate();
+        return _commands;
     };
 
 };

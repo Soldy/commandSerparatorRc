@@ -1,6 +1,7 @@
 
-const nanoTest  = new (require('nanoTest')).test({
-    'debugPrint' : 'short'
+const $nanoTest  = new (require('nanoTest')).test({
+    'progress_bar' : false,
+    'debug_print' : 'short'
 });
 const separatorrc = new (require('./index.js')).base();
 const testC ='test command "rebel param \\" tam" ; multi \\ command\\ b ;;;';
@@ -15,7 +16,7 @@ const expectation =[
     ]
 ];
 
-nanoTest.add(
+$nanoTest.add(
     'multi command',
     {
         'function':separatorrc.check,
@@ -25,5 +26,5 @@ nanoTest.add(
     expectation
 );
 
-nanoTest.run();
+$nanoTest.run();
 
